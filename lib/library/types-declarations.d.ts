@@ -27,8 +27,6 @@ export interface UpdatePermissionsUnit {
 }
 /**used for sending data to the server to create a new user*/
 export interface CreateUserOptions {
-    /**indicates whether or not the server should use the username and password or just userString.*/
-    fullUser: boolean;
     /**this can either be a username or a unique client ID given by another services for identification.*/
     userString: string;
     /**Optional password for a 'fullUser'*/
@@ -138,14 +136,21 @@ export interface BanUserOptions {
     /**The reason for the ban. This is for Admin purposes and could be parsed by a server is needed.*/
     banReason: string;
 }
+/**This is used to request an updated JWT. This should only be done by a server on behalf of the user and the header should send a server token.*/
 export interface RenewJWTRequest {
+    /**This is the current JWT that is requested for renewal*/
     JWT: string;
 }
+/** This should only be done by a server on behalf of the user and the header should send a server token.*/
 export interface CreateJWTRequest {
+    /**This can be a username or client string*/
     clientString: string;
     permissions: PermissionsUnit[];
 }
+/** This is used to created an action token for a client. This should only be done by a server on behalf of the user and the header should send a server token.*/
 export interface ActionTokenCreation {
+    /**This can be a username or client string*/
     clientString: string;
+    /**These are the permissions requested for creating an action token*/
     permissions: PermissionsUnit;
 }
