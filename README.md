@@ -115,22 +115,28 @@ export interface UpdatePermissionsUnit {
 
 ## Environment variables
 
-This is only required for backend services and not front end applications.
-There is 1 requirement for using this system; the environment variables must be setup. There is an example of what it should look like:
+This is only required for backend services and not front end applications. These environment variables should be configured exactly the same in every service using this library. This is to enureses that JWT to be verified across all services without having to communicate directly for cross references.
+
+- _The following values should be unique secret keys, not to share with anyone. Provided below are just examples_
+  - STATIC_PEPPER, REFRESH_KEY, PERMISSIONS_KEY, ACTION_TOKEN_KEY, SERVER_TOKEN_KEY, DYNAMIC_KEY_ARRAY
+  - The rest of these values are for configuration of settings and not for security
+- _The following values require to have a '.' to parse an an array_
+  - DYNAMIC_PEPPER_ARRAY: This should be 3 number of your choice separated by '.'
+  - DYNAMIC_KEY_ARRAY: This should be a unique string separated by '.'
 
 ```bash
 ## Postgres connection
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA"
 ## Pepper variables
-DYNAMIC_PEPPER_ARRAY="3.7.9"
-STATIC_PEPPER="o8gyug6tuvoiha930hpotrjsndfr39ugirejhkr9aurhgurou3bnjrngr9u3bnranjgp9wagujkn"
+DYNAMIC_PEPPER_ARRAY="3.5.7"
+STATIC_PEPPER="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ## Static Token Keys
-REFRESH_KEY="freghe3sywyreh35"
-PERMISSIONS_KEY="syw5y753h"
-ACTION_TOKEN_KEY="357s5ejh54w"
-SERVER_TOKEN_KEY="s5y3w53hw5"
+REFRESH_KEY="YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+PERMISSIONS_KEY="ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+ACTION_TOKEN_KEY="WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+SERVER_TOKEN_KEY="RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
 ## Dynamic Token Keys
-DYNAMIC_KEY_ARRAY="reysrehgre.awrrwg.awrgrw"
+DYNAMIC_KEY_ARRAY="XXXX.YYYYYYYY.ZZ"
 # Token Time in seconds
 SERVER_TIME = "30"
 SHORT_TIME ="600"
@@ -140,7 +146,12 @@ LONG_TIME="2592000"
 SALT="10"
 ```
 
-These environment variables should be configured in every service using this library. This is to enureses that JWT to be verified across all services without having to communicate directly for cross references.
+- All time variables are used to define the length of time a token should be active for.
+- The Salt variables is used for determining the number our rounds when salting pass words for database.
+- All the keys variables are used as signatures for creating hashes when signing JWTs.
+- The Dynamic key array can be any string array separated by '.', Based on the input data, a random element from the array will be used whe signing hashes. This is to help make it harder to discover the primary key used. A single primary key may be prefixed by any one of the dynamic keys.
+- The pepper string is used to select a pepper based on the being hashed. This is to increase security by not using the exact same pepper for every hash value but allows for reapable peppers.
+- The Dynamic pepper array is used in the algorithm to help select 3 random peppers for hashing data. Someone would need to have the pepper string and the exact same dynamic array values to get the correct pepper for any give data.
 
 ## Custom Implementation
 
