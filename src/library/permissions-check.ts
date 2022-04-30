@@ -3,17 +3,17 @@ import { parseJwt, PermissionsType, PermissionsUnit,JWTType } from "..";
 
 
 /**This is used when creating permissions and refresh tokens to add default [permissions*/
-export function getDefaultPermissions(){
+export function getDefaultPermissions(): PermissionsUnit{
     const temp: PermissionsUnit= {permit: "AccountManager",type: PermissionsType.Owner}
     return temp
 }
 
-export function getDefaultAdminPermissions(){
+export function getDefaultAdminPermissions(): PermissionsUnit{
     const temp: PermissionsUnit= {permit: "Admin",type: PermissionsType.Admin}
     return temp
 }
 
-function searchPermissions(inputPermissions:PermissionsUnit[],checkPermissions:PermissionsUnit){
+function searchPermissions(inputPermissions:PermissionsUnit[],checkPermissions:PermissionsUnit): Boolean{
     let check = false
     inputPermissions.forEach((e)=>{
         if(e.permit === checkPermissions.permit && e.type >= checkPermissions.type) {return check = true;}
@@ -22,7 +22,7 @@ function searchPermissions(inputPermissions:PermissionsUnit[],checkPermissions:P
 }
 
 /**Used to check if the permissions within a JWT are valid.*/
-export function checkTokenPermissions(JWTType:JWTType,Jwt:string|undefined,permissions:PermissionsUnit){
+export function checkTokenPermissions(JWTType:JWTType,Jwt:string|undefined,permissions:PermissionsUnit):Boolean | null{
     try {
         if(Jwt === undefined) return false
         const jwtData = parseJwt(JWTType,Jwt)
@@ -42,7 +42,7 @@ export function extractToken( req:Request):string|undefined{
 }
 
 /**This is used to check the permissions of a token. Throws undefine if permissions are excepted*/
-export function checkRequestPermissions(req:Request, res:Response,type:JWTType, requestedPermissions:PermissionsUnit ){
+export function checkRequestPermissions(req:Request, res:Response,type:JWTType, requestedPermissions:PermissionsUnit ): Response{
     try {
         const token = extractToken(req)
         const check = checkTokenPermissions(type,token, requestedPermissions)
@@ -54,13 +54,13 @@ export function checkRequestPermissions(req:Request, res:Response,type:JWTType, 
 
 
 /**This is a compact try catch for handling request to the server. The execution function should contain all logic needed that would then return to the user.*/
-export function validateRequestProcess(res:Response, execute:Function, inputStatusCode:number=200){
+export function validateRequestProcess(res:Response, execute:Function, inputStatusCode:number=200):Response{
     try {return res.status(inputStatusCode).send(execute())}
     catch (error) {return res.status(500).send("Authorization needed"); }
 }
 
 /**This is a condense version of validate request process and permissions check.*/
-export function ProcessRequest(req:Request, res:Response,type:JWTType, requestedPermissions:PermissionsUnit, execute:Function, statusCode:number =200){
+export function ProcessRequest(req:Request, res:Response,type:JWTType, requestedPermissions:PermissionsUnit, execute:Function, statusCode:number =200):Response{
     try { return checkRequestPermissions(req,res,type,requestedPermissions)
     } catch (except) { return validateRequestProcess(res, execute, statusCode)}
 }

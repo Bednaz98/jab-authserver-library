@@ -6,8 +6,9 @@ export function getJwtTime():number{return Math.floor(Date.now()/1000)}
 
 
 /**Parses a raw JWT without verifying if its authentic. Null is returned if there is an error creating the */
-export function parseRawJwt(tokenString:string):JWTData{
+export function parseRawJwt(tokenString:string):JWTData|undefined{
         const temp:any = jwt.decode(tokenString)
+        if(!temp ) return undefined
         const returnData:JWTData = {...temp, sub:Number(temp?.sub)}
         return returnData
 }
@@ -27,7 +28,10 @@ export function verifyJwt(keyType:JWTType,tokenString:string){
     return Boolean( jwt.verify(  tokenString,String(getTokenKey(type)) ));
 }
 
-export function checkJwtTimeValidity(type:JWTType,expTime:number){
+export function checkJwtTimeValidity(keyType:JWTType,tokenString:string):boolean{
+    const data = parseJwt(keyType,tokenString);
+    const type =data?.sub;
+    const expTime = data?.exp ?? 0;
     const minTime = getJwtTime() >= expTime - getTokenTime(Number(type));
     const maxTime = getJwtTime() < expTime;
     return (minTime && maxTime);
